@@ -1,0 +1,22 @@
+#!/bin/bash
+
+search=$1
+shift
+for file
+do
+	sed '
+	/'"$searcih"'/b
+	N
+	h
+	s/.*\n//
+	/'"$search"'/b
+	g
+	s/ *\n/ /
+	/'"$search"'/{
+		g
+		b
+	}
+	g
+	D' $file
+done
+	

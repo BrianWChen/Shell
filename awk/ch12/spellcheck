@@ -1,0 +1,4 @@
+#!/bin/bash
+
+AWKLIB=$HOME/awk/awklib
+awk -f $AWKLIB/spellcheck.awk $*

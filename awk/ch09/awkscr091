@@ -1,0 +1,21 @@
+#!/bin/bash
+
+awk -v NUM=$1 -v TOPNUM=$2 '
+BEGIN{
+	if (NUM <= 0)
+		NUM = 6
+	if (TOPNUM <=0)
+		TOPNUM = 30
+	printf("Pick %d of %d\n", NUM, TOPNUM)
+	srand()
+	for (j = 1; j <= NUM; ++j)
+	{
+		do{
+			select = 1 + int(rand() * TOPNUM)
+		}while (select in pick)
+		pick[select] = select
+	}
+	for (j in pick)
+		printf("%s ", pick[j])
+	printf("\n")
+}'

@@ -1,0 +1,90 @@
+#!/bin/awk -f
+
+BEGIN{ FS = "\t"; OFS = " " }
+
+$1~/~/ && $1!~/~~/ {
+	n = split($1, subfield, "~")
+	if (n == 2){
+		printf("%s %s::%s\n", subfield[1], subfield[2], $2)
+		printf("%s:%s:%s\n", subfield[2], subfield[1], $2)
+	}
+	next
+}
+
+$1~/~~/{
+	gsub(/~~/, "~", $1)
+}
+
+$1~/::/{
+	gsub(/::/, "\\72", $1)
+}
+
+{
+	if (sub(/:.*:/, "&;", $1))
+		sub(/:;/, ";", $1)
+	sub(/: */, ":", $1)
+	if ($1!~/:/){
+		if ($1~/\([Ss]ee/){
+			if (sub(/, *.*\(/, ":&", $1))
+				sub(/:,*/, ":", $1)
+			else
+				sub(/ *\(/, ":(", $1)
+		}
+		else{
+			sub(/, */, ":", $1)
+		}
+	}
+	else
+	{
+		if($1~/:[^;]+ *\([Ss]ee/){
+			sub(/ *\(/, ";(", $1)
+		}
+	}
+}
+
+$1~/ *\([Ss]ee +[Aa]lso/{
+	sub(/\([Ss]ee +[Aa]lso/, " ~zz(see also" , $1)
+	if ($1~/:[^; ]+ *~zz/){
+		sub(/ *~zz/, "~zz", $1)
+	}
+	if ($2 == ""){
+		print $0 ":"
+		next
+	}
+	else{
+		print $1 ":"
+		sub(/ *~zz\(see also.*$/, "", $1)
+		sub(/;/, "", $1)
+		if ($1~/:/)
+			print $1 ":" $2
+		else
+			print $1 "::" $2
+		next	
+	}
+}
+
+(NF == 1 || $2 == "" || $1~/\([Ss]ee/){
+	if ($1~/\([Ss]ee/ ){
+		if ($1~/:/)
+			print $1 ":"
+		else
+			print $1 "::"
+	}
+	else{
+		printer("No page number")
+		next
+	}
+}
+
+$1~/:/{
+	print $1 ":" $2
+	next
+}
+
+{
+	print $1 "::" $2
+}
+
+function printer(message){
+	printf("ERROR:%s (%d) %s\n", message, NR, $0) > "/dev/tty"
+}

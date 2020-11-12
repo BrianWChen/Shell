@@ -1,0 +1,97 @@
+#!/bin/awk -f
+
+BEGIN {   FS = ":"
+	upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	lower = "abcdefghijklmnopqrstuvwxyz"
+}
+
+NR == 1 && FMT == 1 {
+	if (MACDIR)
+		printf (".so %s/indexmacs\n", MACDIR)
+	else
+		printf (".so indexmacs\n")
+	printf (".Se \"\" \"Index\"\n")
+	printf (".XC\n")
+}
+
+
+
+{
+	gsub(/\\72/, ":", $1)
+	gsub(/\\72/, ":", $2)
+	gsub(/\\72/, ":", $3)
+
+	PRIMARY = $1
+	SECONDARY = $2
+	TERTIARY = ""
+	PAGE = $3
+	if (NF == 2) {
+		SECONDARY = ""
+		PAGE = $2
+	}
+	if (! PRIMARY) {
+		if (! SECONDARY) {
+			TERTIARY = $3
+			PAGE = $4
+			if (FMT == 1)
+				printf (".XF 3 \"%s", TERTIARY)
+			else
+				printf ("	%s", TERTIARY)
+		}
+		else
+						if (FMT == 1)
+							printf (".XF 2 \"%s", SECONDARY)
+						else
+							printf ("	%s", SECONDARY)
+	}
+	else {
+		firstChar = substr($1, 1, 1)
+		char = index(lower, firstChar)
+		if (char == 0)	{
+			char = index(upper, firstChar)
+			if (char == 0)
+				char = prevChar
+		}
+		if (char != prevChar) {
+			if (FMT == 1)
+				printf(".XF A \"%s\"\n", substr(upper, char, 1))
+			else
+				printf("\n\t\t%s\n", substr(upper, char, 1))
+			prevChar = char
+		}
+		if (FMT == 1)
+			if (SECONDARY)
+				printf (".XF 1 \"%s\" \"%s", PRIMARY, SECONDARY)
+			else
+				printf (".XF 1 \"%s\" \"", PRIMARY)
+		else
+			if (SECONDARY)
+				printf ("%s, %s", PRIMARY, SECONDARY)
+			else
+				printf ("%s", PRIMARY)
+	}
+	if (PAGE) {
+		if (FMT == 1) {
+			if (! SECONDARY && ! TERTIARY)
+				printf ("%s\"", pageChg(PAGE))
+			else
+				printf (", %s\"", pageChg(PAGE))
+		}
+		else
+			printf (", %s", pageChg(PAGE))
+	}
+	else if (FMT == 1)
+		printf("\"")
+
+	printf ("\n")
+
+}
+
+function pageChg(pagelist) {
+	 gsub(/\^/, ":", pagelist)
+	 if (FMT == 1) {
+		gsub(/[1-9]+\*/, "\\fB&\\P", pagelist)
+		gsub(/\*/, "", pagelist)
+	}
+	return pagelist
+}

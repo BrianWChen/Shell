@@ -1,0 +1,22 @@
+#!/bin/bash
+
+awk '
+BEGIN{
+	listmonths = "January,February,March,April,May,June,July,August,September,October,November,December"
+	split (listmonths, month, ",")
+}
+
+$1 !="" {
+	sizeOfArray = split( $1, date, "/")
+	
+	if (sizeOfArray ==1)
+		sizeOfArray = split( $1, date, "-")
+	
+	if (sizeOfArray ==1)
+		exit
+
+	date[1] += 0
+	print date[1]
+	
+	print month[date[1]], (date[2] ", 19" date[3])
+}'

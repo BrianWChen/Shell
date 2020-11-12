@@ -1,0 +1,22 @@
+#!/bin/bash
+
+awk '
+FILENAME == "acronyms" {
+	split($0, entry, "\t")
+	acro[entry[1]] = entry[2]
+	next
+}
+
+/[A-Z][A-Z]+/ {
+	for (i = 1; i <= NF; i++){
+		if ($i in acro){
+			acronym = $i
+			$i = acro[$i] "(" $i ")"
+			delete acro[acronym]
+		}
+	}
+}
+
+{
+	print $0
+}' acronyms $*

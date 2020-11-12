@@ -1,0 +1,3 @@
+/^$/ {print "This is a blank line"}
+/[0-9 ]+/ {print "This is an integer"}
+/[a-zA-Z ]+/ {print "This is a string"}

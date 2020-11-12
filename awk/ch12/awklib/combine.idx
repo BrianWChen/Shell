@@ -1,0 +1,126 @@
+#!/bin/awk -f
+
+BEGIN   { FS = ":"; OFS = ""}
+{
+	PRIMARY=$1
+	sizeOfArray = split($2, array, ";")
+	SECONDARY = array[1]
+	TERTIARY = array[2]
+	if (sizeOfArray > 1) {
+		isTertiary = 1
+		if (SECONDARY~/\([sS]ee also/){
+			SECONDARY = $2
+			isTertiary = 0
+		}
+		if (TERTIARY~/\([sS]ee also/){
+			TERTIARY = substr($2, (index($2, ";") + 1))
+		}
+	}
+	else 
+		isTertiary = 0
+	
+	PAGELIST = $3
+
+	if (PRIMARY == prevPrimary) {
+		if (isTertiary && SECONDARY == prevSecondary)
+			printf (";\n::%s", TERTIARY)
+		else
+			if (isTertiary)
+				printf ("\n:%s; %s", SECONDARY, TERTIARY)
+			else
+				printf ("\n:%s", SECONDARY)
+	}
+  	 else {
+		if (NR != 1)
+			printf ("\n")
+		if ($2 != "")
+			printf ("%s:%s", PRIMARY, $2)
+		else
+			printf ("%s", PRIMARY)
+
+		prevPrimary = PRIMARY
+	}
+
+	prevSecondary = SECONDARY
+} 
+
+NF == 1 { printf ("\n") }
+
+NF > 1  {
+	if (PAGELIST)
+		printf (":%s", numrange(PAGELIST))
+	else
+		if (! isTertiary || (TERTIARY && SECONDARY)) printf (":")
+}
+
+END {  printf ("\n") }
+
+function numrange(PAGE,     listOfPages, sizeOfArray)
+{
+	sizeOfArray = split(PAGE, howManyVolumes,";")
+	if (sizeOfArray > 1) {
+
+		for (i = 1; i <= sizeOfArray; ++i) {
+			if (split(howManyVolumes[i],volPage,"^") == 2)
+				listOfPages = volPage[1] "^"
+			rangeOfPages(volPage[2])
+			if (i == 1)
+				result = listOfPages
+			else
+				result=result ";" listOfPages
+		}
+	}
+	else {
+
+		if (split(PAGE,volPage,"^") == 2 )
+			listOfPages = volPage[1] "^" rangeOfPages(volPage[2])
+		else
+			listOfPages = rangeOfPages(volPage[1])
+		result = listOfPages
+	}
+
+	return result
+}
+
+function rangeOfPages(PAGENUMBERS, pagesAll, sizeOfArray,pages,   listOfPages, d, p, j) {
+	gsub(/ - /, ",-", PAGENUMBERS)
+
+	sizeOfArray = split(PAGENUMBERS, eachpage, ",")
+	if (sizeOfArray > 1){
+		p = 0
+		for (j = 2; j-1 <= sizeOfArray; ++j) {
+			firstpage = eachpage[j-1]
+			d = 0  # flag indicates consecutive numbers found
+			while ((eachpage[j-1]+1) == eachpage[j] || eachpage[j] ~ /^-/) {
+				if (eachpage[j] ~ /^-/) {
+					sub(/^-/, "", eachpage[j])
+				}
+				lastpage = eachpage[j]
+				++d
+				++j
+			}
+			if (d >= 1) {
+				pages = firstpage "-" lastpage
+			}
+			else
+				pages = firstpage
+			if (p == 0) {
+				pagesAll = pages
+				p = 1
+			}
+			else {
+				pagesAll = pagesAll "," pages
+			}
+		}
+
+		listOfPages = pagesAll
+
+	}
+
+	else
+		listOfPages = PAGENUMBERS
+
+	sub(/,/, ", ", listOfPages)
+
+	return listOfPages
+}

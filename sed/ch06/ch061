@@ -1,0 +1,25 @@
+Consult Section 3.1 in the Owner and Operator
+Guide for a description of the tape drives
+available on you system.
+
+Look in the Owner and Operator Guide shipped with your system.
+
+Two manuals are provied including the Owner and
+Operator Guide and the User Guide.
+
+The Owner and Operator Guide is shipped with your system
+
+<para>
+
+This is a test paragraph in Interleag style ASCII.Another line in a paragraph.Yet another.
+
+<Figure Begin>
+
+v.1111111111111111110000000000000000000101010101000000000000000000000101010101010110101110101000001000000000000000000000000000000000000100010101000000000000000000000000100
+
+<Figure End>
+
+<para>
+
+More lines of text to be found after the figure.
+These lines should print.

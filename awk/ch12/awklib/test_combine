@@ -1,0 +1,29 @@
+Xlib:6
+Xlib:repainting canvas:88
+Xlib.h header file:89,294
+Xv_Font type:310
+XView:18
+XView:about:3,7,10
+XView:as object-oriented system:17
+XView:compiling programs:41
+XView:concept of windows differs from X:25
+XView:data types;  table of:20
+XView:example of programming interface:44
+XView:frames and subframes:26
+XView:generic functions:21
+XView:Generic Object:18, 24
+XView:libraries:42
+XView:notification:10, 35
+XView:objects:23,24;
+XView:objects; table of:20;
+XView:objects; list of:43
+XView:packages:18,43
+XView:programmer's model:17,18,19,20,21,22,23
+XView:programming interface:41
+XView:programs;  initialization:45
+XView:reserved names:43
+XView:reserved prefixes:43
+XView:structure of applications:41
+XView:subwindows:28
+XView:types:43
+XView:window objects:25

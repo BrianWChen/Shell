@@ -1,0 +1,6 @@
+/^\.XX/q
+/Northeast$/{
+	s///
+	w region.northeast
+	/South$/w region.south
+}

@@ -1,0 +1,76 @@
+#!/bin/awk -f
+
+BEGIN { FS = ":"; OFS = "" }
+
+{
+	PRIMARY = $1
+	SECONDARY = $2
+	PAGE = $3
+	VOLUME = $4
+	if (SECONDARY~/\([Ss]ee +[Aa]lso/){
+		tmpSecondary = SECONDARY
+		sub(/~zz\([Ss]ee +[Aa]lso */, "", tmpSecondary)
+		sub(/\) */, "", tmpSecondary)
+		sub(/^.*~zz\([Ss]ee +[Aa]lso */, "", SECONDARY)
+		sub(/\) */, "", SECONDARY)
+		seeAlsoList[++eachSeeAlso] = SECONDARY "; "
+		prevPrimary = PRIMARY
+		prevSecondary = tmpSecondary
+		next
+	}
+
+	if (PRIMARY == prevPrimary){
+		if (SECONDARY == prevSecondary)
+			if (VOLUME == prevVolume)
+				printf(", %s", PAGE)
+			else {
+				printf("; ")
+				volpage(VOLUME, PAGE)
+			}
+		else {
+			if (eachSeeAlso) outputSeeAlso(2)
+			printf("\n%s:%s:", PRIMARY, SECONDARY)
+			volpage(VOLUME, PAGE)
+		}
+	}
+	else {
+		if (eachSeeAlso) outputSeeAlso(2)
+		if (NR != 1)
+			printf("\n")
+		if (NF == 1){
+			printf("%s:", $0)
+		}
+		else {
+			printf("%s:%s:", PRIMARY, SECONDARY)
+			volpage(VOLUME, PAGE)
+		}
+	}
+	prevPrimary = PRIMARY
+	prevSecondary = SECONDARY
+	prevVolume = VOLUME
+}
+
+END {
+	if (eachSeeAlso) outputSeeAlso(1)
+	printf("\n")
+}
+
+function outputSeeAlso(LEVEL){
+	if (LEVEL == 1)
+		printf("\n%s:(See also ", prevPrimary)
+	else {
+		sub(/;.*$/, "", prevSecondary)
+		printf("\n%s:%s; (See also ", prevPrimary, prevSecondary)
+	}
+	sub(/; $/, ".):", seeAlsoList[eachSeeAlso])
+	for (i = 1; i <= eachSeeAlso; ++i)
+		printf("%s", seeAlsoList[i])
+	eachSeeAlso = 0	
+}
+
+function volpage(v, p){
+	if (v == "")
+		printf("%s", p)
+	else
+		printf("%s^%s", v, p)
+}
